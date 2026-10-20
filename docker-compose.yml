@@ -1,0 +1,25 @@
+# Sobe o Obot a partir do código local (fork).
+#   cp .env.example .env   # ajuste o token
+#   docker compose up -d --build
+services:
+  obot:
+    build:
+      context: .
+    image: obot-fork:local
+    container_name: obot
+    restart: unless-stopped
+    ports:
+      - "${OBOT_PORT:-8080}:8080"
+    environment:
+      OBOT_SERVER_ENABLE_AUTHENTICATION: "true"
+      OBOT_BOOTSTRAP_TOKEN: "${OBOT_BOOTSTRAP_TOKEN:-}"
+      # Para usar um PostgreSQL externo, defina OBOT_SERVER_DSN no .env.
+      OBOT_SERVER_DSN: "${OBOT_SERVER_DSN:-}"
+    volumes:
+      - obot-data:/data
+      # Permite ao Obot criar os MCP servers como containers irmãos.
+      # Use só em desenvolvimento ou ambiente single-tenant confiável.
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  obot-data:
